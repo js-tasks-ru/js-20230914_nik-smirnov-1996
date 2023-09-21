@@ -4,6 +4,9 @@
  * @param {string} [param="asc"] param - the sorting type "asc" or "desc"
  * @returns {string[]}
  */
-export function sortStrings(arr, param = 'asc') {
-
+export function sortStrings(arr, param = "asc") {
+// не понял, как корректно отсортировать слова, в которых есть юбольшые буквы, при этом не сравнивая все буквы друг с другом
+  return arr?.sort((a, b) =>
+    param === "asc" ? a.localeCompare(b) : b.localeCompare(a)
+  );
 }

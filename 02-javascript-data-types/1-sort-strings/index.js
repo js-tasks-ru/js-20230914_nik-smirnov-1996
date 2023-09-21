@@ -5,8 +5,10 @@
  * @returns {string[]}
  */
 export function sortStrings(arr, param = "asc") {
-// не понял, как корректно отсортировать слова, в которых есть юбольшые буквы, при этом не сравнивая все буквы друг с другом
-  return arr?.sort((a, b) =>
-    param === "asc" ? a.localeCompare(b) : b.localeCompare(a)
+  let newArray = [...arr];
+  return newArray?.sort((a, b) =>
+    param === "asc"
+      ? a.localeCompare(b, ["ru", "en"], { caseFirst: "upper" })
+      : b.localeCompare(a, ["ru", "en"], { caseFirst: "upper" })
   );
 }

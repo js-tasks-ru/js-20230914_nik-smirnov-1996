@@ -5,7 +5,7 @@
  * @returns {object} - returns the new object
  */
 export const omit = (obj, ...fields) => {
-  let result = new Object();
+  const result = new Object();
 
   Object.entries(obj)
     .filter((element) => !fields.find((key) => key === element[0]))

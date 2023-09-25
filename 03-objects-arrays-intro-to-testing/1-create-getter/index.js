@@ -7,13 +7,13 @@ export function createGetter(path) {
   const pathKeys = path.split(".");
   return (obj) => {
     let currentObj = obj;
-    pathKeys.forEach((pathKey) => {
+    for (pathKey in pathKeys) {
       currentObj =
         currentObj && pathKey in currentObj ? currentObj[pathKey] : undefined;
       if (currentObj === undefined) {
         return;
       }
-    });
+    }
     return currentObj;
   };
 }

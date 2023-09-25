@@ -7,13 +7,15 @@ export function createGetter(path) {
   const pathKeys = path.split(".");
 
   return (obj) => {
-    console.log("___________________________________");
+    console.log("___________________________________", pathKeys);
     let currentObj = obj;
     pathKeys.map((pathKey) => {
-      if (pathKey in obj) {
+      console.log("currentObj1:", currentObj);
+      if (pathKey in currentObj) {
         console.log("here:", pathKey);
         currentObj = obj[pathKey];
       }
+      console.log("currentObj2:", currentObj);
     });
     console.log("currentObj:", currentObj);
     return currentObj;

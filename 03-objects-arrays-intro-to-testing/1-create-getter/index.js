@@ -5,19 +5,17 @@
  */
 export function createGetter(path) {
   const pathKeys = path.split(".");
-
   return (obj) => {
-    console.log("___________________________________", pathKeys);
     let currentObj = obj;
-    pathKeys.map((pathKey) => {
-      console.log("currentObj1:", currentObj);
-      if (pathKey in currentObj) {
-        console.log("here:", pathKey);
-        currentObj = obj[pathKey];
+    for (let keyIndex in pathKeys) {
+      currentObj =
+        currentObj && pathKeys[keyIndex] in currentObj
+          ? currentObj[pathKeys[keyIndex]]
+          : undefined;
+      if (currentObj === undefined) {
+        return;
       }
-      console.log("currentObj2:", currentObj);
-    });
-    console.log("currentObj:", currentObj);
+    }
     return currentObj;
   };
 }

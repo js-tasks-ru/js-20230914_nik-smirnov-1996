@@ -7,7 +7,7 @@ export function createGetter(path) {
   const pathKeys = path.split(".");
   return (obj) => {
     let currentObj = obj;
-    pathKeys.map((pathKey) => {
+    pathKeys.forEach((pathKey) => {
       currentObj =
         currentObj && pathKey in currentObj ? currentObj[pathKey] : undefined;
     });

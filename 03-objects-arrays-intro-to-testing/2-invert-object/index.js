@@ -8,7 +8,7 @@ export function invertObj(obj) {
   if (typeof obj !== "object" && (typeof obj !== "function" || obj === null)) {
     return undefined;
   }
-  Object.entries(obj).map(([key, value]) => {
+  Object.entries(obj).forEach(([key, value]) => {
     currentObj[value] = key;
   });
   return currentObj;

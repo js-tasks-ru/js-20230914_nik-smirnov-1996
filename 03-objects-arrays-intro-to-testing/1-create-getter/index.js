@@ -15,7 +15,6 @@ export function createGetter(path) {
       if (currentObj === undefined) {
         return;
       }
-      console.log("currentObj:", currentObj);
     }
     return currentObj;
   };

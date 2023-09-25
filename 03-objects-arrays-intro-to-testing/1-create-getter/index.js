@@ -10,6 +10,9 @@ export function createGetter(path) {
     pathKeys.forEach((pathKey) => {
       currentObj =
         currentObj && pathKey in currentObj ? currentObj[pathKey] : undefined;
+      if (currentObj === undefined) {
+        return;
+      }
     });
     return currentObj;
   };

@@ -1,11 +1,7 @@
 export default class ColumnChart {
   chartHeight = 50;
-  titleObject = document.createElement("div");
-  containerObject = document.createElement("div");
-  containerBodyObject = document.createElement("div");
-  containerHeaderObject = document.createElement("div");
-  containerBodyElementObject = document.createElement("div");
-
+  mainElement = document.createElement("div");
+  
   constructor(config = {}) {
     this.config = { ...config };
     this.element = this.createMyElement();
@@ -18,9 +14,12 @@ export default class ColumnChart {
       : `${this.config?.label}`;
   }
 
-  createBody() {
+  createElementBody() {
+    const parent = this.mainElement.getElementsByClassName('column-chart__chart')[0];
+    const containerBodyElementObject = document.createElement("div");
+
     this.config?.data?.forEach((element, index) => {
-      let cloneElement = this.containerBodyElementObject.cloneNode();
+      let cloneElement = containerBodyElementObject.cloneNode();
       const maxValue = Math.max(...this.config?.data);
       cloneElement.key = index;
       cloneElement.style = `--value: ${Math.floor(
@@ -29,40 +28,40 @@ export default class ColumnChart {
       cloneElement.dataset.tooltip = `${((element / maxValue) * 100).toFixed(
         0
       )}%`;
-      this.containerBodyObject.appendChild(cloneElement);
+      parent.appendChild(cloneElement);
     });
   }
 
+  containerObject() {
+    return (
+      `
+        <div class="column-chart__title">
+          ${this.title()}
+        </div>
+        <div class="column-chart__container">
+          <div data-element="header" class="column-chart__header">
+            ${
+              this.config?.formatHeading
+                ? this.config?.formatHeading(this.config?.value)
+                : this.config?.value
+            }
+          </div>
+          <div data-element="body" class="column-chart__chart"/>
+        </div>
+    `
+    );
+  }
+
   createMyElement() {
-    let element = document.createElement(`div`);
-    element.className = "column-chart";
+    this.mainElement.className = "column-chart";
+    this.mainElement.style = "--chart-height: 50";
     if (!this.config?.data || this.config?.data.length === 0) {
-      element.classList.add("column-chart_loading");
+      this.mainElement.classList.add("column-chart_loading");
     }
-    
-    this.titleObject.className = "column-chart__title";
-    this.titleObject.innerHTML = this.title();
+    this.mainElement.innerHTML = this.containerObject();
+    this.createElementBody();
 
-    this.containerObject.className = "column-chart__container";
-
-    this.containerHeaderObject.className = "column-chart__header";
-    this.containerHeaderObject.dataset.element = "header";
-    this.containerHeaderObject.innerHTML = this.config?.formatHeading
-      ? this.config?.formatHeading(this.config?.value)
-      : this.config?.value;
-
-    this.containerBodyObject.className = "column-chart__chart";
-    this.containerBodyObject.dataset.element = "body";
-
-    this.createBody();
-
-    this.containerObject.appendChild(this.containerHeaderObject);
-    this.containerObject.appendChild(this.containerBodyObject);
-
-    element.appendChild(this.titleObject);
-    element.appendChild(this.containerObject);
-
-    return element;
+    return this.mainElement;
   }
 
   remove() {
@@ -75,10 +74,10 @@ export default class ColumnChart {
 
   update(value) {
     this.config.data = value;
-
-    while (this.containerBodyObject.firstChild) {
-      this.containerBodyObject.removeChild(this.containerBodyObject.firstChild);
+    const parent = this.mainElement.getElementsByClassName('column-chart__chart')[0];
+    while (parent.firstChild) {
+      parent.removeChild(parent.firstChild);
     }
-    this.createBody();
+    this.createElementBody();
   }
 }

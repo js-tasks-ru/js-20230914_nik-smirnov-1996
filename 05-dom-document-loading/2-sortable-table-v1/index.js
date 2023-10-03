@@ -5,46 +5,51 @@ export default class SortableTable {
     this.element = this.createTableElement();
   }
 
-  /* <div data-element="header" class="sortable-table__header sortable-table__row">
-      <div class="sortable-table__cell" data-id="images" data-sortable="false" data-order="asc">
-        <span>Image</span>
-      </div>
-      <div class="sortable-table__cell" data-id="title" data-sortable="true" data-order="asc">
-        <span>Name</span>
-        <span data-element="arrow" class="sortable-table__sort-arrow">
-          <span class="sort-arrow"></span>
-        </span>
-      </div>
-      <div class="sortable-table__cell" data-id="quantity" data-sortable="true" data-order="asc">
-        <span>Quantity</span>
-      </div>
-      <div class="sortable-table__cell" data-id="price" data-sortable="true" data-order="asc">
-        <span>Price</span>
-      </div>
-      <div class="sortable-table__cell" data-id="sales" data-sortable="true" data-order="asc">
-        <span>Sales</span>
-      </div>sortable
-    </div> */
-
   addTableHeader() {
-    return `
-      <div data-element="header" class="sortable-table__header sortable-table__row">
-        ${this.headerConfig.forEach((headerElement) => {
-          `<div class="sortable-table__cell" 
-          data-id=${headerElement.id} 
-          data-sortable=${headerElement.sortable ?? "false"} 
-          data-order=${headerElement.sortDirection ?? 'asc'}>
-            <span>${headerElement.title}</span>
-          </div>`
-        })}
-      <div>
-    `;
+    return (
+      `
+      <div data-element="header" class="sortable-table__header sortable-table__row">` +
+      this.headerConfig
+        .map((headerElement) => {
+          return `<div class="sortable-table__cell" 
+        data-id=${headerElement.id} 
+        data-sortable=${headerElement.sortable ?? "false"} 
+        data-order=${headerElement.sortDirection ?? "asc"}>
+          <span>${headerElement.title}</span>
+        </div>`;
+        })
+        .join("") +
+      `</div>`
+    );
+  }
+
+  addTableBody() {
+    return (`
+      <div data-element="body" class="sortable-table__body">` +
+        this.data.map((dataElement) => {
+          return `
+            <a href="/products/${dataElement.id}" class="sortable-table__row">` +
+            this.headerConfig.map((rowElement) => {
+              console.log("rowElement:", rowElement);
+              return rowElement.template ? rowElement.template() : `<div class = "sortable-table__cell">${dataElement[rowElement.id]}</div>`;
+            }).join("") +
+            `</a>`;
+        }).join('') +
+      `</div>
+      <div data-element="loading" class="loading-line sortable-table__loading-line"></div>
+      <div data-element="emptyPlaceholder" class="sortable-table__empty-placeholder">
+        <div>
+          <p>No products satisfies your filter criteria</p>
+          <button type="button" class="button-primary-outline">Reset all filters</button>
+        </div>
+      </div>
+      `);
   }
 
   createTableElement() {
     let element = document.createElement("div");
     element.className = `sortable-table`;
-    element.innerHTML = `${this.addTableHeader()}`;
+    element.innerHTML = this.addTableHeader() + this.addTableBody();
     return element;
   }
 

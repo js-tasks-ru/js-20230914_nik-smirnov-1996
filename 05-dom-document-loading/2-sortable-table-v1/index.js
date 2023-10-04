@@ -118,13 +118,7 @@ export default class SortableTable {
     this.#fieldValue = fieldValue;
     this.#orderValue = orderValue;
     this.data = this.sortData();
-    document.body.getElementsByClassName("sortable-table__body")[0].innerHTML = this.addTableRows();
-    document.body.getElementsByClassName("sortable-table__header")[0].innerHTML = this.addHeaderRow();
-    this.subElements = {
-      body: this.element.querySelector('[data-element="body"]'),
-      header: this.element.querySelectorAll('[data-element="header"]'),
-      loading: this.element.querySelectorAll('[data-element="loading"]'),
-      emptyPlaceholder: this.element.querySelectorAll('[data-element="emptyPlaceholder"]')
-    };
+    this.subElements.body.innerHTML = this.addTableRows();
+    this.subElements.header.innerHTML = this.addHeaderRow();
   }
 }

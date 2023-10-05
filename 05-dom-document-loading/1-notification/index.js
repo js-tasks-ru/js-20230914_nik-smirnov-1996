@@ -38,7 +38,6 @@ export default class NotificationMessage {
     if (this.timerId) {
       clearTimeout(this.timerId);
     }
-    NotificationMessage.lastMessage = undefined;
     this.remove();
   }
 

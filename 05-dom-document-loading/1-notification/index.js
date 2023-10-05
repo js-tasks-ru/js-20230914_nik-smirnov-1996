@@ -1,10 +1,14 @@
 export default class NotificationMessage {
-  static isModalShowed = false;
+  static lastMessage;
+  timerId;
 
-  constructor(...config) {
-    this.message = config[0];
-    this.duration = config[1]?.duration;
-    this.type = config[1]?.type;
+  constructor(message, {
+    duration = 2000,
+    type = 'success',
+  } = {}) {
+    this.message = message;
+    this.duration = duration;
+    this.type = type;
     this.element = this.createModalElement();
   }
 
@@ -27,16 +31,18 @@ export default class NotificationMessage {
   }
 
   remove() {
-    NotificationMessage.isModalShowed = false;
     this.element.remove();
   }
 
   destroy() {
+    if (this.timerId) {
+      clearTimeout(this.timerId);
+    }
     this.remove();
   }
 
   createModalElement() {
-    let element = document.createElement("div");
+    const element = document.createElement("div");
     element.className = `notification ${this.type ?? ""}`;
     element.style = `--value: ${this.duration / 1000}s`;
     element.innerHTML = this.addModal();
@@ -44,13 +50,15 @@ export default class NotificationMessage {
   }
 
   show(parent = document.body) {
-    if (NotificationMessage.isModalShowed) {
-      return;
+    if (NotificationMessage.lastMessage) {
+      NotificationMessage.lastMessage.destroy();
     }
-    NotificationMessage.isModalShowed = true;
+    NotificationMessage.lastMessage = this;
+
     parent.append(this.element);
-    setTimeout(() => {
+    this.timerId = setTimeout(() => {
       this.remove();
     }, this.duration);
+    console.log("test:", this.timerId);
   }
 }

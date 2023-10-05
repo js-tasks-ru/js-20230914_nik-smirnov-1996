@@ -1,6 +1,6 @@
 export default class SortableTable {
-  #fieldValue = undefined;
-  #orderValue = undefined;
+  #fieldValue;
+  #orderValue;
   subElements = {};
 
   constructor(headerConfig = [], data = []) {
@@ -84,7 +84,7 @@ export default class SortableTable {
   }
 
   createTableElement() {
-    let element = document.createElement("div");
+    const element = document.createElement("div");
     element.className = `sortable-table`;
     element.innerHTML =
       this.addTableHeader() + this.addTableBody() + this.addLoadingTable();
@@ -98,16 +98,22 @@ export default class SortableTable {
     return element;
   }
 
+  sortString(a, b) {
+    return a.localeCompare(b, ["ru", "en"], { caseFirst: "upper" });
+  }
+
+  sortNum(a, b) {
+    return a - b;
+  }
+
   sortAsc = (a, b) => {
     return typeof b[this.#fieldValue] === 'string' && typeof a[this.#fieldValue] === 'string' ? 
-      a[this.#fieldValue].localeCompare(b[this.#fieldValue], ["ru", "en"], { caseFirst: "upper" }) : 
-      a[this.#fieldValue] - b[this.#fieldValue];
+      this.sortString(a[this.#fieldValue], b[this.#fieldValue]) : this.sortNum(a[this.#fieldValue], b[this.#fieldValue]);
   };
 
   sortDesc = (a, b) => {
     return typeof b[this.#fieldValue] === 'string' && typeof a[this.#fieldValue] === 'string' ? 
-      b[this.#fieldValue].localeCompare(a[this.#fieldValue], ["ru", "en"], { caseFirst: "upper" }) : 
-      b[this.#fieldValue] - a[this.#fieldValue];
+      this.sortString(b[this.#fieldValue], a[this.#fieldValue]) : this.sortNum(b[this.#fieldValue], a[this.#fieldValue]);
   };
   
   sortData() {

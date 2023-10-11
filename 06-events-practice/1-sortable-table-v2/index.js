@@ -1,8 +1,8 @@
 // import SortableTableParent from "../../05-dom-document-loading/2-sortable-table-v1/index.js";
 
 class SortableTableParent {
-  #fieldValue;
-  #orderValue;
+  fieldValue;
+  orderValue;
   subElements = {};
 
   constructor(headerConfig = [], data = []) {
@@ -12,8 +12,8 @@ class SortableTableParent {
   }
 
   remove() {
-    this.#fieldValue = undefined;
-    this.#orderValue = undefined;
+    this.fieldValue = undefined;
+    this.orderValue = undefined;
     this.element.remove();
   }
 
@@ -49,11 +49,13 @@ class SortableTableParent {
         <div class="sortable-table__cell" data-id=${
           headerElement.id
         } data-sortable=${headerElement.sortable ?? "false"} ${
-          this.#orderValue ? `data-order=${this.#orderValue}` : ""
+          this.orderValue && headerElement.id === this.fieldValue
+            ? `data-order=${this.orderValue}`
+            : ""
         }
           <span>${headerElement.title}</span>
           ${
-            this.#fieldValue === headerElement.id
+            this.fieldValue === headerElement.id
               ? `
           <span data-element="arrow" class="sortable-table__sort-arrow">
             <span class="sort-arrow"></span>
@@ -121,28 +123,29 @@ class SortableTableParent {
   }
 
   sortAsc = (a, b) => {
-    return typeof b[this.#fieldValue] === "string" &&
-      typeof a[this.#fieldValue] === "string"
-      ? this.sortString(a[this.#fieldValue], b[this.#fieldValue])
-      : this.sortNum(a[this.#fieldValue], b[this.#fieldValue]);
+    return typeof b[this.fieldValue] === "string" &&
+      typeof a[this.fieldValue] === "string"
+      ? this.sortString(a[this.fieldValue], b[this.fieldValue])
+      : this.sortNum(a[this.fieldValue], b[this.fieldValue]);
   };
 
   sortDesc = (a, b) => {
-    return typeof b[this.#fieldValue] === "string" &&
-      typeof a[this.#fieldValue] === "string"
-      ? this.sortString(b[this.#fieldValue], a[this.#fieldValue])
-      : this.sortNum(b[this.#fieldValue], a[this.#fieldValue]);
+    return typeof b[this.fieldValue] === "string" &&
+      typeof a[this.fieldValue] === "string"
+      ? this.sortString(b[this.fieldValue], a[this.fieldValue])
+      : this.sortNum(b[this.fieldValue], a[this.fieldValue]);
   };
 
   sortData() {
     return [...this.data].sort(
-      this.#orderValue === "asc" ? this.sortAsc : this.sortDesc
+      this.orderValue === "asc" ? this.sortAsc : this.sortDesc
     );
   }
 
   sort(fieldValue, orderValue) {
-    this.#fieldValue = fieldValue;
-    this.#orderValue = orderValue;
+    this.fieldValue = fieldValue;
+    this.orderValue = orderValue;
+    // console.log("fieldValue:", this.fieldValue, this.orderValue );
     this.data = this.sortData();
     this.subElements.body.innerHTML = this.addTableRows();
     this.subElements.header.innerHTML = this.addHeaderRow();
@@ -159,15 +162,28 @@ export default class SortableTable extends SortableTableParent {
   ) {
     super(headersConfig, data);
     this.#isSortLocally = isSortLocally;
-    this.sort(sorted?.id, sorted?.oreder);
+    this.sort(sorted?.id, sorted?.order);
     this.editHeader();
   }
 
-  onColumnNameClick() {
-    console.log("SUCCESS");
+  // sortTest = (a, b) => {
+  //   return super.sort(a, b);
+  // }
+
+  onColumnNameClick = (e) => {
+    console.log("this:", this);
+    const clickedElement = e.target.closest(".sortable-table__cell");
+    const orderValue =
+      clickedElement.getAttribute("data-order") &&
+      clickedElement.getAttribute("data-order") === "asc"
+        ? "desc"
+        : "asc";
+    // this.sortTest(clickedElement.getAttribute("data-id"), orderValue);
+    super.sort(clickedElement.getAttribute("data-id"), orderValue);
   }
 
   editHeader() {
+    console.log("this", this);
     this.subElements.header.addEventListener("click", this.onColumnNameClick);
   }
 }

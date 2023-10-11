@@ -57,7 +57,7 @@
       order: 'asc'
     }
   });
-  console.log("elem:", sortableTable.element);
+  console.log("elem:",  headerConfig.find(item => item.sortable).id);
   root.append(sortableTable.element);
 </script>
 </body>

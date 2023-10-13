@@ -46,25 +46,10 @@ class Tooltip {
   destroy() {
     this.remove();
   }
-
-  // test() {
-  //   const pointerover = new MouseEvent("pointerover", {
-  //     bubbles: true,
-  //   });
-
-  //   const container = document.querySelector(`[data-tooltip="bar-bar-bar"]`);
-
-  //   container.dispatchEvent(pointerover);
-
-  //   console.log("container");
-
-  //   console.log("toBeVisible:", document.body.contains(this.element));
-  //   // expect(tooltip.element).toBeInTheDocument();
-  //   // expect(tooltip.element).toHaveTextContent("bar-bar-bar");
-  // }
 }
 
-export default Tooltip;
+// export default Tooltip;
+
 
 // class Tooltip {
 //   constructor() {

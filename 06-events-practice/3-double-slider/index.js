@@ -1,18 +1,20 @@
 export default class DoubleSlider {
-  #leftPercent;
-  #rightPercent;
+  thumbRightPercent = 100;
+  thumbLeftPercent = 0;
+  subElements = {};
+  element = document.createElement("div");
+
   constructor(config) {
     this.selected = config.selected;
     this.formatValue = config.formatValue;
-    this.range = { min: config.min, max: config.max };
-    this.element = this.createSliderElement();
+    this.range = { min: config.min ?? 100, max: config.max ?? 100 };
+    this.createSliderElement();
   }
 
   createSliderElement = () => {
-    const element = document.createElement("div");
-    element.className = `range-slider`;
-    element.innerHTML = `
-    <span>${
+    this.element.className = `range-slider`;
+    this.element.innerHTML = `
+    <span id='leftValueLimit'>${
       this.formatValue ? this.formatValue(this.range.min) : this.range.min
     }</span>
     <div class="range-slider__inner">
@@ -20,29 +22,44 @@ export default class DoubleSlider {
       <span class="range-slider__thumb-left"></span>
       <span class="range-slider__thumb-right"></span>
     </div>
-    <span>${
+    <span id='rightValueLimit'>${
       this.formatValue ? this.formatValue(this.range.max) : this.range.max
     }</span>
     `;
-    this.initialize(element);
-    return element;
+
+    if (this.selected) {
+      this.thumbLeftPercent =
+        ((this.selected.from - this.range.min) /
+          (this.range.max - this.range.min)) *
+        100;
+      this.thumbRightPercent =
+        ((this.selected.to - this.range.min) /
+          (this.range.max - this.range.min)) *
+        100;
+    }
+
+    this.initialize();
   };
 
-  initialize(element) {
-    const slider = element.querySelector(".range-slider__inner");
-    const thumbLeft = element.querySelector(".range-slider__thumb-left");
-    const thumbRight = element.querySelector(".range-slider__thumb-right");
+  initialize = () => {
+    this.subElements = {
+      slider: this.element.querySelector(".range-slider__inner"),
+      thumbLeft: this.element.querySelector(".range-slider__thumb-left"),
+      thumbRight: this.element.querySelector(".range-slider__thumb-right"),
+      leftValueLimit: this.element.querySelector("[id = 'leftValueLimit']"),
+      rightValueLimit: this.element.querySelector("[id = 'rightValueLimit']"),
+    };
+    console.log("left:", this.subElements.thumbLeft);
 
-    thumbLeft.onmousedown = (event) => {
-      console.log("slider:", slider);
+    this.updateSlider();
+
+    this.subElements.thumbLeft.onmousedown = (event) => {
       event.preventDefault();
 
-      document.addEventListener("mousemove", onMouseMove);
-      document.addEventListener("mouseup", onMouseUp);
-
-      function onMouseMove(event) {
+      const onMouseMove = (event) => {
         const clientX = event.clientX;
-        let newLeft = clientX - slider.getBoundingClientRect().left;
+        let newLeft =
+          clientX - this.subElements.slider.getBoundingClientRect().left;
 
         if (newLeft < 0) {
           newLeft = 0;
@@ -50,120 +67,91 @@ export default class DoubleSlider {
 
         if (
           newLeft >
-          thumbRight.getBoundingClientRect().left -
-            slider.getBoundingClientRect().left
+          this.subElements.thumbRight.getBoundingClientRect().left -
+            this.subElements.slider.getBoundingClientRect().left
         ) {
           newLeft =
-            thumbRight.getBoundingClientRect().left -
-            slider.getBoundingClientRect().left;
+            this.subElements.thumbRight.getBoundingClientRect().left -
+            this.subElements.slider.getBoundingClientRect().left;
         }
 
-        console.log("newLeft:", newLeft);
-        console.log(slider.offsetWidth);
-        // this.#rightPercent = (newLeft / slider.offsetWidth) * 100;
-        // const percent = Math.floor((newLeft / slider.offsetWidth) * 100);
-        const percent = (newLeft / slider.offsetWidth) * 100;
+        this.thumbLeftPercent =
+          (newLeft / this.subElements.slider.offsetWidth) * 100;
 
-        thumbLeft.style.left = newLeft + "px";
-        element.querySelector(".range-slider__progress").style.left = percent + '%';
-      }
+        this.updateSlider();
+      };
 
       function onMouseUp() {
         document.removeEventListener("mouseup", onMouseUp);
         document.removeEventListener("mousemove", onMouseMove);
       }
-    };
-
-    thumbRight.onmousedown = (event) => {
-      event.preventDefault();
 
       document.addEventListener("mousemove", onMouseMove);
       document.addEventListener("mouseup", onMouseUp);
+    };
 
-      function onMouseMove(event) {
+    this.subElements.thumbRight.onmousedown = (event) => {
+      event.preventDefault();
+
+      const onMouseMove = (event) => {
         const clientX = event.clientX;
-        let newLeft = clientX - slider.getBoundingClientRect().left;
+        let newLeft =
+          clientX - this.subElements.slider.getBoundingClientRect().left;
 
         if (
           newLeft <
-          thumbLeft.getBoundingClientRect().right -
-            slider.getBoundingClientRect().left
+          this.subElements.thumbLeft.getBoundingClientRect().right -
+            this.subElements.slider.getBoundingClientRect().left
         ) {
           newLeft =
-            thumbLeft.getBoundingClientRect().right -
-            slider.getBoundingClientRect().left;
+            this.subElements.thumbLeft.getBoundingClientRect().right -
+            this.subElements.slider.getBoundingClientRect().left;
         }
 
-        if (newLeft > slider.offsetWidth) {
-          newLeft = slider.offsetWidth;
+        if (newLeft > this.subElements.slider.offsetWidth) {
+          newLeft = this.subElements.slider.offsetWidth;
         }
 
-        // thumbRight.style.left = newLeft + "px";
-
-        const percent = 100 - (newLeft / slider.offsetWidth) * 100;
-
-        thumbRight.style.left = newLeft + "px";
-        element.querySelector(".range-slider__progress").style.right = percent + '%';
-      }
+        this.thumbRightPercent =
+          (newLeft / this.subElements.slider.offsetWidth) * 100;
+        this.updateSlider();
+      };
 
       function onMouseUp() {
         document.removeEventListener("mouseup", onMouseUp);
         document.removeEventListener("mousemove", onMouseMove);
       }
+
+      document.addEventListener("mousemove", onMouseMove);
+      document.addEventListener("mouseup", onMouseUp);
     };
-  }
+  };
+
+  updateSlider = () => {
+    this.subElements.thumbRight.style.right = 100 - this.thumbRightPercent + "%";
+
+    this.element.querySelector(".range-slider__progress").style.right =
+      100 - this.thumbRightPercent + "%";
+    const rightSelectedValue =
+      this.range.min +
+      Math.round(
+        ((this.range.max - this.range.min) * this.thumbRightPercent) / 100
+      );
+    this.subElements.rightValueLimit.innerHTML = this.formatValue
+      ? this.formatValue(rightSelectedValue)
+      : rightSelectedValue;
+
+    this.subElements.thumbLeft.style.left = this.thumbLeftPercent + "%";
+
+    this.element.querySelector(".range-slider__progress").style.left =
+      this.thumbLeftPercent + "%";
+    const leftSelectedValue =
+      this.range.min +
+      Math.round(
+        ((this.range.max - this.range.min) * this.thumbLeftPercent) / 100
+      );
+    this.subElements.leftValueLimit.innerHTML = this.formatValue
+      ? this.formatValue(leftSelectedValue)
+      : leftSelectedValue;
+  };
 }
-
-// {
-//     min: 100,
-//     max: 200,
-//     formatValue: value => '$' + value,
-//     selected: {
-//       from: 120,
-//       to: 150
-//     }
-
-// {
-/* <div class="range-slider">
-    <span>$10</span>
-    <div class="range-slider__inner">
-      <span class="range-slider__progress"></span>
-      <span class="range-slider__thumb-left"></span>
-      <span class="range-slider__thumb-right"></span>
-    </div>
-    <span>$100</span>
-  </div> */
-// }
-
-// thumbRight.onmousedown = (event) => {
-//   event.preventDefault();
-//   let shiftX = event.clientX - thumbRight.getBoundingClientRect().left;
-
-//   document.addEventListener("mousemove", onMouseMove);
-//   document.addEventListener("mouseup", onMouseUp);
-
-//   function onMouseMove(event) {
-//     let newLeft =
-//       event.clientX - shiftX - slider.getBoundingClientRect().left;
-//     // console.log("thumbRight.getBoundingClientRect().left:", thumbRight.getBoundingClientRect().right)
-
-//     if (
-//       newLeft <
-//       slider.offsetWidth - thumbLeft.getBoundingClientRect().right
-//     ) {
-//       newLeft = thumbLeft.getBoundingClientRect().right;
-//     }
-//     let rightEdge = slider.offsetWidth;
-//     if (newLeft > rightEdge) {
-//       newLeft = rightEdge;
-//     }
-
-//     thumbRight.style.left = newLeft + "px";
-//   }
-
-//   function onMouseUp() {
-//     document.removeEventListener("mouseup", onMouseUp);
-//     document.removeEventListener("mousemove", onMouseMove);
-//   }
-//   // console.log("event:", event);
-// };

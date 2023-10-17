@@ -1,19 +1,15 @@
 class Tooltip {
+  element = document.createElement("div");
+
   constructor() {
-    this.element = this.createTooltipElement();
     if (Tooltip.instance) {
-      return Tooltip.instance;
+      return Tooltip.instance
     }
-    return (Tooltip.instance = this);
+    Tooltip.instance = this;
   }
-
-  createTooltipElement() {
-    const element = document.createElement("div");
-    element.className = `tooltip`;
-    return element;
-  }
-
   initialize() {
+    this.element.className = `tooltip`;
+
     const parent = document.body;
     parent.addEventListener("mouseenter", this.render);
     parent.addEventListener("mousemove", this.changePosition);
@@ -42,26 +38,11 @@ class Tooltip {
   };
 
   destroy() {
-    document.body.removeEventListener("mouseenter", () => {
-      this.render();
-    });
+    document.body.removeEventListener("mouseenter", this.render);
     document.body.removeEventListener("mousemove", this.changePosition);
-    document.body.removeEventListener("mouseleave", () => {
-      this.remove();
-    });
+    document.body.removeEventListener("mouseleave", this.remove);
     this.remove();
-  }
-
-  test() {
-    const pointerover = new MouseEvent("pointerover", {
-      bubbles: true,
-    });
-    const container = document.querySelector('[data-tooltip="bar-bar-bar"]');
-    console.log("container:", container);
-    container.dispatchEvent(pointerover);
-    console.log("here:", this.element);
   }
 }
 
 export default Tooltip;
-

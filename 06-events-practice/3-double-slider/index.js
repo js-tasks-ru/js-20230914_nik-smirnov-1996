@@ -7,34 +7,35 @@ export default class DoubleSlider {
   constructor(config) {
     this.selected = config.selected;
     this.formatValue = config.formatValue;
-    this.range = { min: config.min ?? 100, max: config.max ?? 100 };
+    this.min = config.min ?? 100;
+    this.max = config.max ?? 200;
     this.createSliderElement();
   }
 
   createSliderElement = () => {
     this.element.className = `range-slider`;
     this.element.innerHTML = `
-    <span id='leftValueLimit'>${
-      this.formatValue ? this.formatValue(this.range.min) : this.range.min
+    <span data-element="from">${
+      this.formatValue ? this.formatValue(this.min) : this.min
     }</span>
     <div class="range-slider__inner">
       <span class="range-slider__progress"></span>
       <span class="range-slider__thumb-left"></span>
       <span class="range-slider__thumb-right"></span>
     </div>
-    <span id='rightValueLimit'>${
-      this.formatValue ? this.formatValue(this.range.max) : this.range.max
+    <span data-element="to">${
+      this.formatValue ? this.formatValue(this.max) : this.max
     }</span>
     `;
 
     if (this.selected) {
       this.thumbLeftPercent =
-        ((this.selected.from - this.range.min) /
-          (this.range.max - this.range.min)) *
+        ((this.selected.from - this.min) /
+          (this.max - this.min)) *
         100;
       this.thumbRightPercent =
-        ((this.selected.to - this.range.min) /
-          (this.range.max - this.range.min)) *
+        ((this.selected.to - this.min) /
+          (this.max - this.min)) *
         100;
     }
 
@@ -46,10 +47,9 @@ export default class DoubleSlider {
       slider: this.element.querySelector(".range-slider__inner"),
       thumbLeft: this.element.querySelector(".range-slider__thumb-left"),
       thumbRight: this.element.querySelector(".range-slider__thumb-right"),
-      leftValueLimit: this.element.querySelector("[id = 'leftValueLimit']"),
-      rightValueLimit: this.element.querySelector("[id = 'rightValueLimit']"),
+      leftValueLimit: this.element.querySelector('span[data-element="from"]'),
+      rightValueLimit: this.element.querySelector('span[data-element="to"]'),
     };
-    console.log("left:", this.subElements.thumbLeft);
 
     this.updateSlider();
 
@@ -133,9 +133,9 @@ export default class DoubleSlider {
     this.element.querySelector(".range-slider__progress").style.right =
       100 - this.thumbRightPercent + "%";
     const rightSelectedValue =
-      this.range.min +
+      this.min +
       Math.round(
-        ((this.range.max - this.range.min) * this.thumbRightPercent) / 100
+        ((this.max - this.min) * this.thumbRightPercent) / 100
       );
     this.subElements.rightValueLimit.innerHTML = this.formatValue
       ? this.formatValue(rightSelectedValue)
@@ -146,12 +146,19 @@ export default class DoubleSlider {
     this.element.querySelector(".range-slider__progress").style.left =
       this.thumbLeftPercent + "%";
     const leftSelectedValue =
-      this.range.min +
+      this.min +
       Math.round(
-        ((this.range.max - this.range.min) * this.thumbLeftPercent) / 100
+        ((this.max - this.min) * this.thumbLeftPercent) / 100
       );
     this.subElements.leftValueLimit.innerHTML = this.formatValue
       ? this.formatValue(leftSelectedValue)
       : leftSelectedValue;
   };
+
+  destroy(){
+    this.element.remove();
+    this.subElements={};
+    this.thumbRightPercent = 100;
+    this.thumbLeftPercent = 0;
+  }
 }

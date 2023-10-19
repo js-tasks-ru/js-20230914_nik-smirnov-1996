@@ -59,6 +59,5 @@ export default class NotificationMessage {
     this.timerId = setTimeout(() => {
       this.remove();
     }, this.duration);
-    console.log("test:", this.timerId);
   }
 }

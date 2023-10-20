@@ -4,95 +4,62 @@ import { default as ColumnChartParent } from "../../04-oop-basic-intro-to-dom/1-
 const BACKEND_URL = "https://course-js.javascript.ru";
 
 export default class ColumnChart extends ColumnChartParent {
+  subElements;
   constructor(config) {
     super(config);
-    console.log(this.config);
-    console.log(this.element);
+    this.selectSubElements();
   }
 
-  
+  sum = (array) => {
+    return array.reduce((a, b) => a + b, 0);
+  };
+
+  selectSubElements = () => {
+    this.subElements = {
+      body: this.element.querySelector(`[data-element="body"]`),
+      header: this.element.querySelector(`[data-element="header"]`),
+      mainElement: this.mainElement,
+    };
+  };
+
+  clearColumnChartBody = () => {
+    while (this.subElements.body.firstChild) {
+      this.subElements.body.removeChild(this.subElements.body.firstChild);
+    }
+  };
+
+  updateColumnChartHeader = () => {
+    if (this.config.data && this.config.data.length > 0) {
+      this.subElements.mainElement.classList.remove("column-chart_loading");
+    } else {
+      this.subElements.mainElement.classList.add("column-chart_loading");
+    }
+    this.subElements.header.innerHTML = this.config?.formatHeading
+      ? this.config?.formatHeading(this.config?.value)
+      : this.config?.value;
+  };
+
+  updateColumnChart = () => {
+    this.clearColumnChartBody();
+    this.updateColumnChartHeader();
+    super.createElementBody();
+  };
+
+  updateRequestUrl =(start, end)=> {
+    const url = new URL(BACKEND_URL + "/" + this.config.url);
+    url.searchParams.append("from", start);
+    url.searchParams.append("to", end);
+    return url;
+  }
+
+  update = async (start, end) => {
+    const currentData = await fetchJson(this.updateRequestUrl(start, end)).then((data) => {
+      return data;
+    });
+    this.config.data = Object.values(currentData);
+    this.config.value = this.sum(this.config.data);
+
+    this.updateColumnChart();
+    return currentData;
+  };
 }
-
-// export default class ColumnChart {
-//     chartHeight = 50;
-//     mainElement = document.createElement("div");
-
-//     constructor(config = {}) {
-//       this.config = { ...config };
-//       this.element = this.createMyElement();
-//     }
-
-//     title() {
-//       const link = `<a href=${this.config?.link} class="column-chart__link">View all</a>`;
-//       return this.config?.link
-//         ? `${this.config?.label}` + link
-//         : `${this.config?.label}`;
-//     }
-
-//     createElementBody() {
-//       const parent = this.mainElement.getElementsByClassName('column-chart__chart')[0];
-//       const containerBodyElementObject = document.createElement("div");
-
-//       this.config?.data?.forEach((element, index) => {
-//         let cloneElement = containerBodyElementObject.cloneNode();
-//         const maxValue = Math.max(...this.config?.data);
-//         cloneElement.key = index;
-//         cloneElement.style = `--value: ${Math.floor(
-//           (this.chartHeight * element) / maxValue
-//         )}`;
-//         cloneElement.dataset.tooltip = `${((element / maxValue) * 100).toFixed(
-//           0
-//         )}%`;
-//         parent.appendChild(cloneElement);
-//       });
-//     }
-
-//     containerObject() {
-//       return (
-//         `
-//           <div class="column-chart__title">
-//             ${this.title()}
-//           </div>
-//           <div class="column-chart__container">
-//             <div data-element="header" class="column-chart__header">
-//               ${
-//                 this.config?.formatHeading
-//                   ? this.config?.formatHeading(this.config?.value)
-//                   : this.config?.value
-//               }
-//             </div>
-//             <div data-element="body" class="column-chart__chart"/>
-//           </div>
-//       `
-//       );
-//     }
-
-//     createMyElement() {
-//       this.mainElement.className = "column-chart";
-//       this.mainElement.style = "--chart-height: 50";
-//       if (!this.config?.data || this.config?.data.length === 0) {
-//         this.mainElement.classList.add("column-chart_loading");
-//       }
-//       this.mainElement.innerHTML = this.containerObject();
-//       this.createElementBody();
-
-//       return this.mainElement;
-//     }
-
-//     remove() {
-//       this.element.remove();
-//     }
-
-//     destroy() {
-//       this.remove();
-//     }
-
-//     update(value) {
-//       this.config.data = value;
-//       const parent = this.mainElement.getElementsByClassName('column-chart__chart')[0];
-//       while (parent.firstChild) {
-//         parent.removeChild(parent.firstChild);
-//       }
-//       this.createElementBody();
-//     }
-//   }

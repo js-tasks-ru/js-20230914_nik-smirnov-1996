@@ -8,7 +8,7 @@ export default class SortableTable extends SortableTableParent {
     this.isSortLocally = isSortLocally;
     this.editHeader();
   }
-  
+  // here
 
   sortOnServer = () => {
     return;

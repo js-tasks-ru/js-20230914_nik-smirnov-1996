@@ -19,7 +19,7 @@ export default class SortableTableParent {
     this.remove();
   }
 
-  addTableRows() {
+  addTableRows() {    
     return this.data
       .map((dataElement) => {
         return (
